@@ -1,7 +1,9 @@
 #pragma once
-
 #include "Engine\MathHelper.h"
 #include "Engine\Polygon.h"
+
+#include <iostream>
+#include <fstream>
 
 #include <assimp\scene.h>
 #include <assimp\Importer.hpp>
@@ -63,6 +65,29 @@ namespace resourceLoader
 			}
 		}
 
+		return poly;
+	}
+
+	// Loads in file of the format
+	static SpringMassMesh* loadSpringMesh(std::string path)
+	{
+		std::ifstream input;
+		input.open(path);
+
+		SpringMassMesh* poly = new SpringMassMesh();
+		int numPts = -1;
+		int trash = -1;
+		input >> numPts;
+		std::vector<VertexData> vertexData = std::vector<VertexData>(numPts);
+		for (int i = 0; i < numPts; i++)
+		{
+			VertexData vData;
+			input >> trash >> vData.pos.x >> vData.pos.y >> vData.pos.z;
+			vertexData[i] = vData;
+		}
+		poly->setVertexBuffer(vertexData);
+
+		input.close();
 		return poly;
 	}
 }

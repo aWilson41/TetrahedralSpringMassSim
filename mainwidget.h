@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Engine\Camera.h"
 #include "Engine\Primitives.h"
 #include "Engine\Polygon.h"
@@ -41,6 +40,7 @@ private:
 	//SpringMassTree* tree;
 	Poly* poly;
 	Plane* plane;
+	SpringMassMesh* softBody;
 	std::vector<Material*> materials;
 
 	glm::vec3 lightDir;
@@ -48,5 +48,5 @@ private:
 	glm::vec2 mousePos = glm::vec2(0.0f);
 	GLfloat phi = 1.4f;
 	GLfloat theta = 1.57f;
-	GLfloat rho = 25.0f;
+	GLfloat rho1 = 45.0f;
 };

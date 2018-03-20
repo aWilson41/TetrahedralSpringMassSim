@@ -27,7 +27,7 @@ void MainWidget::initializeGL()
 
 
 	//tree = new SpringMassTree(5, 6);
-	poly = resourceLoader::loadPolygon("C:/Users/Andx_/Desktop/test.obj");
+	poly = resourceLoader::loadPolygon("C:/Users/Andx_/Desktop/Models/Tree3.obj");
 	poly->setShaderProgram(&program);
 	poly->world = mathHelper::matrixScale(0.2f);
 	Material* treeMat = new Material();
@@ -44,6 +44,10 @@ void MainWidget::initializeGL()
 	planeMat->setAmbientToDiffuse(0.8f);
 	materials.push_back(planeMat);
 	plane->setMaterial(planeMat);
+
+	/*softBody = resourceLoader::loadSpringMesh("C:/Users/Andx_/Desktop/tetraMesh.dat");
+	softBody->setShaderProgram(&program);
+	softBody->setMaterial(treeMat);*/
 
 	lightDir = glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f));
 
@@ -78,7 +82,12 @@ void MainWidget::initShaders()
 
 void MainWidget::mousePressEvent(QMouseEvent* e)
 {
-
+	//poly->data[0].pos.x += 100.0f;
+	/*poly->vertexBuffer->bind();
+	VertexData* vertices = static_cast<VertexData*>(poly->vertexBuffer->map(QOpenGLBuffer::Access::WriteOnly));
+	vertices[0].pos.x += 100.0f;
+	poly->vertexBuffer->unmap();
+	poly->vertexBuffer->release();*/
 }
 
 void MainWidget::mouseReleaseEvent(QMouseEvent* e)
@@ -88,7 +97,7 @@ void MainWidget::mouseReleaseEvent(QMouseEvent* e)
 
 void MainWidget::wheelEvent(QWheelEvent* e)
 {
-	rho -= e->delta() * 0.004f;
+	rho1 -= e->delta() * 0.004f;
 	updateCamera(mousePos);
 }
 
@@ -113,11 +122,12 @@ void MainWidget::updateCamera(glm::vec2 pos)
 	else if (phi < 0.01f)
 		phi = 0.01f;
 
+	GLfloat rho2 = std::pow(1.2, rho1) * 0.01f;
 	// Convert spherical coords
 	glm::vec3 eyePos = glm::vec3(
-		rho * sin(phi) * cos(theta),
-		rho * cos(phi),
-		rho * sin(phi) * sin(theta));
+		rho2 * sin(phi) * cos(theta),
+		rho2 * cos(phi),
+		rho2 * sin(phi) * sin(theta));
 
 	// Should prob use a slerp here but ohwell
 	cam.setEyePos(eyePos);
