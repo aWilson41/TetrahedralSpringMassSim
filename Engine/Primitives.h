@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Engine\Polygon.h"
 
 class Plane : public Poly

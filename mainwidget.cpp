@@ -25,32 +25,43 @@ void MainWidget::initializeGL()
 	glClearColor(0.4f, 0.58f, 0.9f, 1.0f);
 	initShaders();
 
-
-	//tree = new SpringMassTree(5, 6);
-	poly = resourceLoader::loadPolygon("C:/Users/Andx_/Desktop/Models/Tree3.obj");
+	/*poly = resourceLoader::loadPolygon("C:/Users/Andx_/Desktop/Cube.obj");
+	if (poly == nullptr)
+	{
+		QMessageBox::warning(this, tr("Error"), tr("Failed to load mesh."), QMessageBox::Ok);
+		exit(1);
+	}
 	poly->setShaderProgram(&program);
 	poly->world = mathHelper::matrixScale(0.2f);
-	Material* treeMat = new Material();
-	treeMat->setDiffuse(0.4f, 0.16f, 0.0f);
-	treeMat->setAmbientToDiffuse(0.8f);
-	materials.push_back(treeMat);
-	poly->setMaterial(treeMat);
+	Material* polyMat = new Material();
+	polyMat->setDiffuse(0.4f, 0.16f, 0.0f);
+	polyMat->setAmbientToDiffuse(0.8f);
+	materials.push_back(polyMat);
+	poly->setMaterial(polyMat);*/
+
+	softBody = resourceLoader::loadSpringMesh("C:/Users/Andx_/Desktop/test.dat");
+	if (softBody == nullptr)
+	{
+		QMessageBox::warning(this, tr("Error"), tr("Failed to load mesh."), QMessageBox::Ok);
+		exit(1);
+	}
+	softBody->setShaderProgram(&program);
+	Material* mat = new Material();
+	mat->setDiffuse(0.4f, 0.16f, 0.0f);
+	mat->setAmbientToDiffuse(0.8f);
+	materials.push_back(mat);
+	softBody->setMaterial(mat);
 
 	plane = new Plane();
 	plane->setShaderProgram(&program);
-	plane->world = mathHelper::matrixTranslate(0.0f, -11.4f, 0.0f) * mathHelper::matrixScale(1000.0f);
+	plane->world = mathHelper::matrixTranslate(0.0f, -20.0f, 0.0f) * mathHelper::matrixScale(1000.0f);
 	Material* planeMat = new Material();
 	planeMat->setDiffuse(0.0f, 0.2f, 0.0f);
 	planeMat->setAmbientToDiffuse(0.8f);
 	materials.push_back(planeMat);
 	plane->setMaterial(planeMat);
 
-	/*softBody = resourceLoader::loadSpringMesh("C:/Users/Andx_/Desktop/tetraMesh.dat");
-	softBody->setShaderProgram(&program);
-	softBody->setMaterial(treeMat);*/
-
 	lightDir = glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f));
-
 
 	// Enable depth buffer
 	glEnable(GL_DEPTH_TEST);
@@ -122,6 +133,7 @@ void MainWidget::updateCamera(glm::vec2 pos)
 	else if (phi < 0.01f)
 		phi = 0.01f;
 
+	// Exponentially scale the scroll out
 	GLfloat rho2 = std::pow(1.2, rho1) * 0.01f;
 	// Convert spherical coords
 	glm::vec3 eyePos = glm::vec3(
@@ -160,7 +172,8 @@ void MainWidget::paintGL()
 	// Set modelview-projection matrix
 	glm::mat4 viewProj = cam.proj * cam.view;
 	glUniform3f(program.uniformLocation("lightDir"), lightDir.x, lightDir.y, lightDir.z);
-	poly->draw(viewProj);
+	//poly->draw(viewProj);
+	softBody->draw(viewProj);
 	plane->draw(viewProj);
 
 	program.release();
@@ -176,11 +189,12 @@ MainWidget::~MainWidget()
 
 	if (poly != nullptr)
 		delete poly;
+	if (softBody != nullptr)
+		delete softBody;
 	if (plane != nullptr)
 		delete plane;
 
 	// Make sure the context is current when deleting the texture and the buffers.
 	makeCurrent();
-	//delete tree;
 	doneCurrent();
 }

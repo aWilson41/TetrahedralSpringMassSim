@@ -9,6 +9,7 @@
 #include <assimp\Importer.hpp>
 #include <assimp\postprocess.h>
 #include <qdir.h>
+#include <qmessagebox.h>
 
 namespace resourceLoader
 {
@@ -41,6 +42,7 @@ namespace resourceLoader
 
 		// Get the vertices
 		std::vector<VertexData> vertexData = std::vector<VertexData>(aimesh->mNumVertices);
+		std::vector<GLuint> indexData = std::vector<GLuint>(aimesh->mNumVertices);
 		for (UINT i = 0; i < aimesh->mNumVertices; i++)
 		{
 			vertexData[i].pos.x = aimesh->mVertices[i].x;
@@ -50,11 +52,13 @@ namespace resourceLoader
 			vertexData[i].normal.x = aimesh->mNormals[i].x;
 			vertexData[i].normal.y = aimesh->mNormals[i].y;
 			vertexData[i].normal.z = aimesh->mNormals[i].z;
+			indexData[i] = i;
 		}
 		poly->setVertexBuffer(vertexData);
+		poly->setIndexBuffer(indexData);
 
 		// Get the faces connectivity information (not used for rendering but stored)
-		std::vector<FaceData> faceData = std::vector<FaceData>(aimesh->mNumFaces);
+		/*std::vector<FaceData> faceData = std::vector<FaceData>(aimesh->mNumFaces);
 		for (UINT i = 0; i < aimesh->mNumFaces; i++)
 		{
 			UINT numIndices = aimesh->mFaces[i].mNumIndices;
@@ -63,7 +67,7 @@ namespace resourceLoader
 			{
 				faceData[i].vertices[j] = &vertexData[aimesh->mFaces[i].mIndices[j]];
 			}
-		}
+		}*/
 
 		return poly;
 	}
@@ -75,17 +79,24 @@ namespace resourceLoader
 		input.open(path);
 
 		SpringMassMesh* poly = new SpringMassMesh();
-		int numPts = -1;
-		int trash = -1;
-		input >> numPts;
-		std::vector<VertexData> vertexData = std::vector<VertexData>(numPts);
-		for (int i = 0; i < numPts; i++)
+		int count = -1;
+		input >> count;
+		std::vector<VertexData> vertexData = std::vector<VertexData>(count);
+		for (int i = 0; i < count; i++)
 		{
 			VertexData vData;
-			input >> trash >> vData.pos.x >> vData.pos.y >> vData.pos.z;
+			input >> vData.pos.x >> vData.pos.y >> vData.pos.z;
 			vertexData[i] = vData;
 		}
 		poly->setVertexBuffer(vertexData);
+
+		input >> count;
+		std::vector<GLuint> indexData = std::vector<GLuint>(count * 2);
+		for (int i = 0; i < count * 2; i += 2)
+		{
+			input >> indexData[i] >> indexData[i + 1];
+		}
+		poly->setIndexBuffer(indexData);
 
 		input.close();
 		return poly;

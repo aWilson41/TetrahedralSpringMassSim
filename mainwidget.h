@@ -37,10 +37,9 @@ private:
 	Camera cam;
 	QBasicTimer timer;
 	QOpenGLShaderProgram program;
-	//SpringMassTree* tree;
-	Poly* poly;
-	Plane* plane;
-	SpringMassMesh* softBody;
+	Poly* poly = nullptr;
+	Plane* plane = nullptr;
+	SpringMassMesh* softBody = nullptr;
 	std::vector<Material*> materials;
 
 	glm::vec3 lightDir;
