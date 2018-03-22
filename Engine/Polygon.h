@@ -14,12 +14,6 @@ struct VertexData
 	glm::vec3 normal;
 };
 
-// Contains array of indices to vertices
-//struct FaceData
-//{
-//	std::vector<VertexData*> vertices;
-//};
-
 class Poly : protected QOpenGLFunctions
 {
 public:
@@ -52,7 +46,6 @@ public:
 	// Contains per vertex data of the mesh
 	std::vector<VertexData> data;
 	std::vector<GLuint> indexData;
-	//std::vector<FaceData> faces;
 
 public:
 	Material* mat;

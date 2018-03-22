@@ -98,6 +98,8 @@ namespace resourceLoader
 		}
 		poly->setIndexBuffer(indexData);
 
+		poly->setupSpringMesh();
+
 		input.close();
 		return poly;
 	}

@@ -7,12 +7,7 @@
 class SpringMassMesh : public Poly
 {
 public:
-	void setupSprings()
-	{
-		// Generate edge list (there could easily be duplicate edges)
-
-		// To do this we need connectivity information (faceData)
-	}
+	void setupSpringMesh();
 
 	void update(GLfloat dt, GLfloat g);
 

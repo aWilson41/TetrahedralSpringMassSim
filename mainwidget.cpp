@@ -39,7 +39,7 @@ void MainWidget::initializeGL()
 	materials.push_back(polyMat);
 	poly->setMaterial(polyMat);*/
 
-	softBody = resourceLoader::loadSpringMesh("C:/Users/Andx_/Desktop/test.dat");
+	softBody = resourceLoader::loadSpringMesh("C:/Users/Andrew/Desktop/test.dat");
 	if (softBody == nullptr)
 	{
 		QMessageBox::warning(this, tr("Error"), tr("Failed to load mesh."), QMessageBox::Ok);
@@ -56,7 +56,7 @@ void MainWidget::initializeGL()
 	plane->setShaderProgram(&program);
 	plane->world = mathHelper::matrixTranslate(0.0f, -20.0f, 0.0f) * mathHelper::matrixScale(1000.0f);
 	Material* planeMat = new Material();
-	planeMat->setDiffuse(0.0f, 0.2f, 0.0f);
+	planeMat->setDiffuse(0.2f, 0.6f, 0.2f);
 	planeMat->setAmbientToDiffuse(0.8f);
 	materials.push_back(planeMat);
 	plane->setMaterial(planeMat);
@@ -123,7 +123,7 @@ void MainWidget::mouseMoveEvent(QMouseEvent* e)
 
 void MainWidget::updateCamera(glm::vec2 pos)
 {
-	glm::vec2 diff = mousePos - pos;
+	glm::vec2 diff = (mousePos - pos) * 0.5f;
 	theta -= diff.x * 0.008f;
 	phi += diff.y * 0.008f;
 	
@@ -149,6 +149,7 @@ void MainWidget::updateCamera(glm::vec2 pos)
 
 void MainWidget::timerEvent(QTimerEvent* e)
 {
+	softBody->update(0.1f, -0.1f);
 	update();
 }
 

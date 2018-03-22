@@ -5,6 +5,8 @@
 class Particle
 {
 public:
+	Particle() { }
+
 	Particle(glm::vec3* pos)
 	{
 		Particle::pos = pos;
