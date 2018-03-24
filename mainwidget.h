@@ -42,7 +42,7 @@ private:
 	SpringMassMesh* softBody = nullptr;
 	std::vector<Material*> materials;
 
-	glm::vec3 lightDir;
+	glm::vec3 lightDir = glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f));
 
 	glm::vec2 mousePos = glm::vec2(0.0f);
 	GLfloat phi = 1.4f;

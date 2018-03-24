@@ -18,37 +18,45 @@ Poly::~Poly()
 		indexBuffer->destroy();
 		delete indexBuffer;
 	}
+	delete[] vertexData;
+	// Indices don't have to be used
+	if (indexData != nullptr)
+		delete[] indexData;
+	if (faceData != nullptr)
+		delete[] faceData;
 }
 
-void Poly::setVertexBuffer(std::vector<VertexData> data)
+void Poly::setVertexBuffer(VertexData* data, int size)
 {
-	/*if (vao == nullptr)
-	{
-		createVAO();
-		vao->bind();
-	}*/
-
-	Poly::data = data;
+	vertexData = data;
+	vertexCount = size;
 	vertexBuffer = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
 	//vertexBuffer->setUsagePattern(QOpenGLBuffer::DynamicDraw);
 	vertexBuffer->create();
 
 	// Transfer vertex data to VBO 0
 	vertexBuffer->bind();
-	vertexBuffer->allocate(data.data(), sizeof(VertexData) * static_cast<int>(data.size()));
+	vertexBuffer->allocate(data, sizeof(VertexData) * vertexCount);
 	vertexBuffer->release();
 	
 }
 
-void Poly::setIndexBuffer(std::vector<GLuint> data)
+void Poly::setIndexBuffer(GLuint* data, int size)
 {
 	indexData = data;
+	indexCount = size;
 	indexBuffer = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
 	indexBuffer->create();
 
 	indexBuffer->bind();
-	indexBuffer->allocate(indexData.data(), sizeof(GLuint) * static_cast<int>(data.size()));
+	indexBuffer->allocate(indexData, sizeof(GLuint) * indexCount);
 	indexBuffer->release();
+}
+
+void Poly::setFaceData(Face* data, int size)
+{
+	faceData = data;
+	faceCount = size;
 }
 
 void Poly::setShaderProgram(QOpenGLShaderProgram* program)
@@ -87,7 +95,7 @@ void Poly::draw(glm::mat4 viewProj)
 		program->enableAttributeArray(normalAttributeLocation);
 
 		// Draw the triangles
-		glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(data.size()));
+		glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertexCount));
 
 		program->disableAttributeArray(posAttributeLocation);
 		program->disableAttributeArray(normalAttributeLocation);
@@ -112,7 +120,7 @@ void Poly::draw(glm::mat4 viewProj)
 		program->enableAttributeArray(normalAttributeLocation);
 
 		// Draw the triangles
-		glDrawElements(GL_LINES, static_cast<GLsizei>(indexData.size()), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indexCount), GL_UNSIGNED_INT, 0);
 
 		program->disableAttributeArray(posAttributeLocation);
 		program->disableAttributeArray(normalAttributeLocation);

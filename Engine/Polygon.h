@@ -14,14 +14,22 @@ struct VertexData
 	glm::vec3 normal;
 };
 
+struct Face
+{
+	VertexData* v1;
+	VertexData* v2;
+	VertexData* v3;
+};
+
 class Poly : protected QOpenGLFunctions
 {
 public:
 	Poly() { initializeOpenGLFunctions(); }
 	~Poly();
 
-	void setVertexBuffer(std::vector<VertexData> data);
-	void setIndexBuffer(std::vector<GLuint> data);
+	void setVertexBuffer(VertexData* data, int size);
+	void setIndexBuffer(GLuint* data, int size);
+	void setFaceData(Face* data, int size);
 
 	void setMaterial(Material* mat) { Poly::mat = mat; }
 
@@ -43,9 +51,14 @@ public:
 
 	QOpenGLBuffer* vertexBuffer = nullptr;
 	QOpenGLBuffer* indexBuffer = nullptr;
+
 	// Contains per vertex data of the mesh
-	std::vector<VertexData> data;
-	std::vector<GLuint> indexData;
+	VertexData* vertexData = nullptr;
+	int vertexCount = -1;
+	GLuint* indexData = nullptr;
+	int indexCount = -1;
+	Face* faceData = nullptr;
+	int faceCount = -1;
 
 public:
 	Material* mat;

@@ -39,7 +39,7 @@ void MainWidget::initializeGL()
 	materials.push_back(polyMat);
 	poly->setMaterial(polyMat);*/
 
-	softBody = resourceLoader::loadTetgenMesh("C:/Users/Andx_/Desktop/mesh/sbr.1", 8);
+	softBody = resourceLoader::loadTetgenMesh("C:/Users/Andx_/Desktop/mesh/dragon.1", 8);
 	if (softBody == nullptr)
 	{
 		QMessageBox::warning(this, tr("Error"), tr("Failed to load mesh."), QMessageBox::Ok);
@@ -51,22 +51,23 @@ void MainWidget::initializeGL()
 	mat->setAmbientToDiffuse(0.8f);
 	materials.push_back(mat);
 	softBody->setMaterial(mat);
+	softBody->calculateNormals();
 
 	plane = new Plane();
 	plane->setShaderProgram(&program);
 	plane->world = mathHelper::matrixTranslate(0.0f, -85.0f, 0.0f) * mathHelper::matrixScale(1000.0f);
 	Material* planeMat = new Material();
-	planeMat->setDiffuse(0.2f, 0.6f, 0.2f);
+	planeMat->setDiffuse(0.2f, 0.4f, 0.2f);
 	planeMat->setAmbientToDiffuse(0.8f);
 	materials.push_back(planeMat);
 	plane->setMaterial(planeMat);
-
-	lightDir = glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f));
 
 	// Enable depth buffer
 	glEnable(GL_DEPTH_TEST);
 	// Enable Multisampling
 	glEnable(GL_MULTISAMPLE);
+	// Enable back face cull
+	glEnable(GL_CULL_FACE);
 
 	// Use QBasicTimer because its faster than QTimer
 	timer.start(12, this);
@@ -151,9 +152,10 @@ void MainWidget::updateCamera(glm::vec2 pos)
 
 void MainWidget::timerEvent(QTimerEvent* e)
 {
-	softBody->update(0.012f, -4.6f);
+	softBody->update(0.02f, -4.6f);
 	update();
 }
+
 
 void MainWidget::resizeGL(int w, int h)
 {

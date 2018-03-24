@@ -14,7 +14,6 @@ out vec4 fColor;
 
 void main()
 {
-    // Set fragment color from texture (diffuse with a touch of ambient)
-	vec3 color = dot(lightDir, normal) * mat.diffuseColor + mat.ambientColor;
+	vec3 color = clamp(dot(lightDir, normal) * mat.diffuseColor + mat.ambientColor, 0.0f, 1.0f);
 	fColor = vec4(color, 1.0);
 }

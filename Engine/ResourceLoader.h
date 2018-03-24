@@ -41,8 +41,8 @@ namespace resourceLoader
 		Poly* poly = new Poly();
 
 		// Get the vertices
-		std::vector<VertexData> vertexData = std::vector<VertexData>(aimesh->mNumVertices);
-		std::vector<GLuint> indexData = std::vector<GLuint>(aimesh->mNumVertices);
+		VertexData* vertexData = new VertexData[aimesh->mNumVertices];
+		GLuint* indexData = new GLuint[aimesh->mNumVertices];
 		for (UINT i = 0; i < aimesh->mNumVertices; i++)
 		{
 			vertexData[i].pos.x = aimesh->mVertices[i].x;
@@ -54,8 +54,8 @@ namespace resourceLoader
 			vertexData[i].normal.z = aimesh->mNormals[i].z;
 			indexData[i] = i;
 		}
-		poly->setVertexBuffer(vertexData);
-		poly->setIndexBuffer(indexData);
+		poly->setVertexBuffer(vertexData, aimesh->mNumVertices);
+		poly->setIndexBuffer(indexData, aimesh->mNumVertices);
 
 		// Get the faces connectivity information (not used for rendering but stored)
 		/*std::vector<FaceData> faceData = std::vector<FaceData>(aimesh->mNumFaces);
@@ -73,7 +73,7 @@ namespace resourceLoader
 	}
 
 	// Loads in file of the format
-	static SpringMassMesh* loadSpringMesh(std::string path)
+	/*static SpringMassMesh* loadSpringMesh(std::string path)
 	{
 		std::ifstream input;
 		input.open(path);
@@ -104,7 +104,7 @@ namespace resourceLoader
 		poly->setIndexBuffer(indexData);
 		poly->setupSpringMesh();
 		return poly;
-	}
+	}*/
 
 	static void addEdge(int i1, int i2, std::vector<GLuint>& indices)
 	{
@@ -128,10 +128,11 @@ namespace resourceLoader
 
 		SpringMassMesh* poly = new SpringMassMesh();
 		int trash = -1;
-		unsigned int count = 0;
-		input >> count >> trash >> trash >> trash;
-		std::vector<VertexData> vertexData = std::vector<VertexData>(count);
-		for (unsigned int i = 0; i < count; i++)
+		unsigned int vertexCount = 0;
+		input >> vertexCount >> trash >> trash >> trash;
+		VertexData* vertexData = new VertexData[vertexCount];
+		poly->neighbors = std::vector<std::vector<Face*>>(vertexCount);
+		for (unsigned int i = 0; i < vertexCount; i++)
 		{
 			VertexData vData;
 			input >> trash >> vData.pos.x >> vData.pos.y >> vData.pos.z;
@@ -145,9 +146,10 @@ namespace resourceLoader
 		if (input.fail())
 			return nullptr;
 
-		input >> count >> trash >> trash;
-		std::vector<GLuint> indexData;
-		for (unsigned int i = 0; i < count; i++)
+		unsigned int springIndexCount = -1;
+		input >> springIndexCount >> trash >> trash;
+		std::vector<GLuint> springIndexData;
+		for (unsigned int i = 0; i < springIndexCount; i++)
 		{
 			int j = i * 12;
 			int index[4];
@@ -157,18 +159,55 @@ namespace resourceLoader
 			index[2]--;
 			index[3]--;
 
-			addEdge(index[0], index[1], indexData);
-			addEdge(index[0], index[2], indexData);
-			addEdge(index[0], index[3], indexData);
-			addEdge(index[1], index[2], indexData);
-			addEdge(index[1], index[3], indexData);
-			addEdge(index[2], index[3], indexData);
+			// Kinda inefficient (but sufficient for the size of meshes I can simulate)
+			addEdge(index[0], index[1], springIndexData);
+			addEdge(index[0], index[2], springIndexData);
+			addEdge(index[0], index[3], springIndexData);
+			addEdge(index[1], index[2], springIndexData);
+			addEdge(index[1], index[3], springIndexData);
+			addEdge(index[2], index[3], springIndexData);
 		}
 		input.close();
 
-		poly->setVertexBuffer(vertexData);
-		poly->setIndexBuffer(indexData);
-		poly->setupSpringMesh();
+		// Read faces
+		input.open(path + ".face");
+		if (input.fail())
+			return nullptr;
+
+		unsigned int faceCount = -1;
+		input >> faceCount >> trash;
+		GLuint* indexData = new GLuint[faceCount * 3];
+		Face* faceData = new Face[faceCount];
+		for (unsigned int i = 0; i < faceCount; i++)
+		{
+			int index[3];
+			input >> trash >> index[0] >> index[1] >> index[2] >> trash;
+			index[2]--;
+			index[1]--;
+			index[0]--;
+			indexData[i * 3] = index[2];
+			indexData[i * 3 + 1] = index[1];
+			indexData[i * 3 + 2] = index[0];
+
+			// Add the face
+			Face* face = &faceData[i];
+			face->v1 = &vertexData[index[0]];
+			face->v2 = &vertexData[index[1]];
+			face->v3 = &vertexData[index[2]];
+
+			// Add reference to face from vertex
+			poly->neighbors[index[2]].push_back(face);
+			poly->neighbors[index[1]].push_back(face);
+			poly->neighbors[index[0]].push_back(face);
+		}
+		input.close();
+
+		poly->setVertexBuffer(vertexData, vertexCount);
+		poly->setIndexBuffer(indexData, faceCount * 3);
+		poly->setFaceData(faceData, faceCount);
+		//poly->setupSpringMesh();
+		poly->setupSpringMesh(springIndexData.data(), static_cast<int>(springIndexData.size()));
+		
 		return poly;
 	}
 }
