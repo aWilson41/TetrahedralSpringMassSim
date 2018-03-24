@@ -47,5 +47,5 @@ private:
 	glm::vec2 mousePos = glm::vec2(0.0f);
 	GLfloat phi = 1.4f;
 	GLfloat theta = 1.57f;
-	GLfloat rho1 = 45.0f;
+	GLfloat rho1 = 60.0f;
 };

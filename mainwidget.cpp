@@ -1,5 +1,5 @@
 #include "MainWidget.h"
-#include "Engine\ResourceLoader.h"
+#include "Engine/ResourceLoader.h"
 
 #include <QMouseEvent>
 #include <QApplication>
@@ -39,7 +39,7 @@ void MainWidget::initializeGL()
 	materials.push_back(polyMat);
 	poly->setMaterial(polyMat);*/
 
-	softBody = resourceLoader::loadSpringMesh("C:/Users/Andrew/Desktop/test.dat");
+	softBody = resourceLoader::loadTetgenMesh("C:/Users/Andx_/Desktop/mesh/sbr.1", 8);
 	if (softBody == nullptr)
 	{
 		QMessageBox::warning(this, tr("Error"), tr("Failed to load mesh."), QMessageBox::Ok);
@@ -54,7 +54,7 @@ void MainWidget::initializeGL()
 
 	plane = new Plane();
 	plane->setShaderProgram(&program);
-	plane->world = mathHelper::matrixTranslate(0.0f, -20.0f, 0.0f) * mathHelper::matrixScale(1000.0f);
+	plane->world = mathHelper::matrixTranslate(0.0f, -85.0f, 0.0f) * mathHelper::matrixScale(1000.0f);
 	Material* planeMat = new Material();
 	planeMat->setDiffuse(0.2f, 0.6f, 0.2f);
 	planeMat->setAmbientToDiffuse(0.8f);
@@ -99,6 +99,8 @@ void MainWidget::mousePressEvent(QMouseEvent* e)
 	vertices[0].pos.x += 100.0f;
 	poly->vertexBuffer->unmap();
 	poly->vertexBuffer->release();*/
+
+	glm::vec2 pos = glm::vec2(e->screenPos().x(), e->screenPos().y());
 }
 
 void MainWidget::mouseReleaseEvent(QMouseEvent* e)
@@ -149,7 +151,7 @@ void MainWidget::updateCamera(glm::vec2 pos)
 
 void MainWidget::timerEvent(QTimerEvent* e)
 {
-	softBody->update(0.1f, -0.1f);
+	softBody->update(0.012f, -4.6f);
 	update();
 }
 
@@ -160,7 +162,7 @@ void MainWidget::resizeGL(int w, int h)
 
 	// Set near plane to 0.001, far plane to 700.0, field of view 45 degrees
 	// Set the perspective projection matrix
-	cam.setPerspective(45.0, aspect, 0.001f, 1000.0f);
+	cam.setPerspective(45.0, aspect, 0.001f, 10000.0f);
 }
 
 void MainWidget::paintGL()
