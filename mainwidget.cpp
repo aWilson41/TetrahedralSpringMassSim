@@ -101,7 +101,24 @@ void MainWidget::mousePressEvent(QMouseEvent* e)
 	poly->vertexBuffer->unmap();
 	poly->vertexBuffer->release();*/
 
-	glm::vec2 pos = glm::vec2(e->screenPos().x(), e->screenPos().y());
+	glm::vec2 pos = glm::vec2(e->localPos().x(), height() - e->localPos().y());
+	glm::vec2 size = glm::vec2(width(), height()) / 2.0f;
+	pos = (pos - size) / size;
+	glm::vec4 pt = glm::vec4(pos.x, pos.y, 0.0f, 1.0f) * glm::inverse(cam.proj);
+	glm::vec3 dir = glm::normalize(glm::vec3(pt) - cam.eyePos);
+	//mathHelper::computeEyeRay(pos, width(), height(), cam.fov, cam.nearZ);
+
+	for (int i = 0; i < softBody->faceCount; i++)
+	{
+		glm::vec3 diff1 = softBody->faceData[i].v3->pos - softBody->faceData[i].v2->pos;
+		glm::vec3 diff2 = softBody->faceData[i].v3->pos - softBody->faceData[i].v1->pos;
+		glm::vec3 n = glm::normalize(glm::cross(diff1, diff2));
+		glm::vec4 results = mathHelper::triangleRayIntersection(mathHelper::Ray(glm::vec3(pt), dir), softBody->faceData[i].v1->pos, softBody->faceData[i].v2->pos, softBody->faceData[i].v3->pos, n);
+		if (results.x == 0.0f && results.y == 0.0f && results.z == 0.0f)
+			printf("Miss\n");
+		else
+			printf("Hit\n");
+	}
 }
 
 void MainWidget::mouseReleaseEvent(QMouseEvent* e)
